@@ -1,6 +1,8 @@
 const { QueryTypes } = require("sequelize");
 const user = require("../models/userSchema");
-const { sequelize } = require("../util/databse");
+const Tour = require("../models/tourSchema");
+const Place = require("../models/placeSchema");
+const Activity = require("../models/activitySchema");
 
 
 const checkUserAvailable = async (id) => {
@@ -38,7 +40,27 @@ exports.createUser = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await user
-      .findAll()
+      .findAll({
+        attributes: ['id', 'name', 'email', 'mobile'],
+        include: [{
+          model: Tour,
+          attributes: ['id', 'cityName', 'description', 'image', 'startDate', 'endDate'],
+          as: 'tours',
+          include: [{
+            model: Place,
+            attributes: ['id', 'placeName', 'description', 'price', 'situatedIn', 'famousFor', 'image'],
+            as: 'places'
+          },
+        {
+          model: Activity,
+          attributes: ['id', 'activityName', 'description', 'image'],
+          as: 'activities',
+          through: {
+            attributes: []
+          }
+        }]
+        }]
+      })
     res.status(200).json({
         status: "success",
         content: {
@@ -56,7 +78,28 @@ exports.getAllUsers = async (req, res) => {
 exports.getUser = async (req, res)=>{
     try {
         const id = req.params.id;
-        const u = await user.findByPk(id);
+        const u = await user.findByPk(id, {
+          attributes: ['id', 'name', 'email', 'mobile'],
+          include: [{
+            model: Tour,
+            attributes: ['id', 'cityName', 'description', 'image', 'startDate', 'endDate'],
+            as: 'tours',
+            include: [{
+              model: Place,
+              attributes: ['id', 'placeName', 'description', 'price', 'situatedIn', 'famousFor', 'image'],
+              as: 'places'
+            },
+          {
+            model: Activity,
+            attributes: ['id', 'activityName', 'description', 'image'],
+            as: 'activities',
+            through: {
+              attributes: []
+            }
+          }]
+          }]
+        }
+        );
         if(!u){
           checkUserAvailable();
         }
@@ -66,7 +109,7 @@ exports.getUser = async (req, res)=>{
                 user: u
             }
         })
-    } catch (e) {
+    } catch (e) { 
       res.status(500).json({
         status: "error",
         message: e.message || e,

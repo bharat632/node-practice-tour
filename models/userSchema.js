@@ -23,6 +23,13 @@ const user = sequelize.define(
       type: DataTypes.BIGINT,
       allowNull: false,
     },
+    // tourId: {
+    //   type: DataTypes.INTEGER,
+    //   references: {
+    //     model: tourSchema,
+    //     key: "id"
+    //   }
+    // }
   },
   {
     tableName: "users",

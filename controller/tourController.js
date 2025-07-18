@@ -1,8 +1,25 @@
-const tourSchema = require('../models/tourSchema')
+const tourSchema = require('../models/tourSchema');
+const Place = require("../models/placeSchema");
+const Activity = require("../models/activitySchema");
 
 exports.getAllTours = async(req, res)=>{
     try {
-        let tours = await tourSchema.findAll();
+        let tours = await tourSchema.findAll({
+          attributes: ['id', 'cityName', 'description', 'image', 'startDate', 'endDate'],
+          include: [{
+            model: Place,
+            attributes: ['id', 'placeName', 'description', 'price', 'situatedIn', 'famousFor', 'image'],
+            as: 'places'
+          },
+          {
+            model: Activity,
+            attributes: ['id', 'activityName', 'description', 'image'],
+            as: 'activities',
+            through: {
+              attributes: []
+            }
+          }],
+        });
         res.status(200).json({
             status: "success",
             content: {
@@ -22,13 +39,20 @@ exports.createTour = async(req, res)=>{
         let body = req.body;
         let startDate = Number(new Date(body.startDate))
         let endDate = Number(new Date(body.endDate))
-        let tour = await tourSchema.create({
+        const tour = await tourSchema.create({
           cityName: body.cityName,
           description: body.description,
           image: body.image,
           startDate: startDate,
           endDate: endDate,
+          userId: body.userId
         });
+
+        if(body.activities && body.activities.length > 0) {
+          // await tour.addActivities(body.activities);
+          await tour.setActivities(req.body.activities);
+        }
+
         res.status(201).json({
             status: "success",
             content: {
@@ -47,7 +71,22 @@ exports.createTour = async(req, res)=>{
 exports.getTOur = async (req, res) => {
   try {
     let id = req.params.id;
-    let tour = await tourSchema.findByPk(id);
+    let tour = await tourSchema.findByPk(id, {
+      attributes: ['id', 'cityName', 'description', 'image', 'startDate', 'endDate'],
+      include: [{
+        model: Place,
+        attributes: ['id', 'placeName', 'description', 'price', 'situatedIn', 'famousFor', 'image'],
+        as: 'places'
+      },
+      {
+        model: Activity,
+        attributes: ['id', 'activityName', 'description', 'image'],
+        as: 'activities',
+        through: {
+          attributes: []
+        }
+      }],
+    });
     res.status(200).json({
       status: "success",
       content: {
@@ -65,7 +104,7 @@ exports.getTOur = async (req, res) => {
 exports.deleteTour = async (req, res) => {
   try {
     let id = req.params.id;
-    let tour = await tourSchema.destroy(id);
+    await tourSchema.destroy(id);
     res.status(204).json({
       status: "success",
       content: {

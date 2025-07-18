@@ -32,6 +32,14 @@ const place = sequelize.define("place", {
   image: {
     type: DataTypes.STRING,
     allowNull: true
+  },
+  tourId: {
+    type: DataTypes.BIGINT,
+    allowNull: false,
+    references: {
+      model: 'tours', // this is the table name 
+      key: 'id'
+    }
   }
 },
 {

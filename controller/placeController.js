@@ -3,7 +3,9 @@ const placeSchema = require("../models/placeSchema");
 
 exports.getAllPlaces = async(req, res)=>{
     try{
-        let places = await placeSchema.findAll();
+        let places = await placeSchema.findAll({
+          attributes: ['id', 'placeName', 'description', 'price', 'situatedIn', 'famousFor', 'image']
+        });
         res.status(200).json({
             status: "success",
             content: {
@@ -28,6 +30,7 @@ exports.createPlace = async (req, res) => {
       situatedIn: body.situatedIn,
       famousFor: body.famousFor,
       image: body.image,
+      tourId: body.tourId
     });
     res.status(201).json({
       status: "success",
@@ -46,7 +49,9 @@ exports.createPlace = async (req, res) => {
 exports.getPlace = async (req, res) => {
   try {
     const id = req.params.id;
-    const p = await placeSchema.findByPk(id);
+    const p = await placeSchema.findByPk(id, {
+      attributes: ['id', 'placeName', 'description', 'price', 'situatedIn', 'famousFor', 'image']
+    });
     res.status(200).json({
       status: "success",
       content: {
