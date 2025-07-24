@@ -23,8 +23,13 @@ const user = sequelize.define(
       type: DataTypes.BIGINT,
       allowNull: false,
     },
+    tourId: {
+      type: DataTypes.BIGINT,
+      allowNull: true, // Optional: user may not belong to any tour initially
+      default: null,
+    },
     // tourId: {
-    //   type: DataTypes.INTEGER,
+    //   type: DataTypes.BIGINT,
     //   references: {
     //     model: tourSchema,
     //     key: "id"

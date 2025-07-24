@@ -39,34 +39,52 @@ exports.createUser = async (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await user
-      .findAll({
-        attributes: ['id', 'name', 'email', 'mobile'],
-        include: [{
-          model: Tour,
-          attributes: ['id', 'cityName', 'description', 'image', 'startDate', 'endDate'],
-          as: 'tours',
-          include: [{
-            model: Place,
-            attributes: ['id', 'placeName', 'description', 'price', 'situatedIn', 'famousFor', 'image'],
-            as: 'places'
-          },
+    const users = await user.findAll({
+      attributes: ["id", "name", "email", "mobile"],
+      include: [
         {
-          model: Activity,
-          attributes: ['id', 'activityName', 'description', 'image'],
-          as: 'activities',
-          through: {
-            attributes: []
-          }
-        }]
-        }]
-      })
-    res.status(200).json({
-        status: "success",
-        content: {
-          users: users,
+          model: Tour,
+          attributes: [
+            "id",
+            "cityName",
+            "description",
+            "image",
+            "startDate",
+            "endDate",
+          ],
+          as: "tour",
+          include: [
+            {
+              model: Place,
+              attributes: [
+                "id",
+                "placeName",
+                "description",
+                "price",
+                "situatedIn",
+                "famousFor",
+                "image",
+              ],
+              as: "places",
+            },
+            {
+              model: Activity,
+              attributes: ["id", "activityName", "description", "image"],
+              as: "activities",
+              through: {
+                attributes: [],
+              },
+            },
+          ],
         },
-      });
+      ],
+    });
+    res.status(200).json({
+      status: "success",
+      content: {
+        users: users,
+      },
+    });
   } catch (e) {
     res.status(500).json({
       status: "error",
@@ -75,47 +93,65 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-exports.getUser = async (req, res)=>{
-    try {
-        const id = req.params.id;
-        const u = await user.findByPk(id, {
-          attributes: ['id', 'name', 'email', 'mobile'],
-          include: [{
-            model: Tour,
-            attributes: ['id', 'cityName', 'description', 'image', 'startDate', 'endDate'],
-            as: 'tours',
-            include: [{
+exports.getUser = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const u = await user.findByPk(id, {
+      attributes: ["id", "name", "email", "mobile"],
+      include: [
+        {
+          model: Tour,
+          attributes: [
+            "id",
+            "cityName",
+            "description",
+            "image",
+            "startDate",
+            "endDate",
+          ],
+          as: "tour",
+          include: [
+            {
               model: Place,
-              attributes: ['id', 'placeName', 'description', 'price', 'situatedIn', 'famousFor', 'image'],
-              as: 'places'
+              attributes: [
+                "id",
+                "placeName",
+                "description",
+                "price",
+                "situatedIn",
+                "famousFor",
+                "image",
+              ],
+              as: "places",
             },
-          {
-            model: Activity,
-            attributes: ['id', 'activityName', 'description', 'image'],
-            as: 'activities',
-            through: {
-              attributes: []
-            }
-          }]
-          }]
-        }
-        );
-        if(!u){
-          checkUserAvailable();
-        }
-        res.status(200).json({
-            status: "success",
-            content: {
-                user: u
-            }
-        })
-    } catch (e) { 
-      res.status(500).json({
-        status: "error",
-        message: e.message || e,
-      });
+            {
+              model: Activity,
+              attributes: ["id", "activityName", "description", "image"],
+              as: "activities",
+              through: {
+                attributes: [],
+              },
+            },
+          ],
+        },
+      ],
+    });
+    if (!u) {
+      checkUserAvailable();
     }
-}
+    res.status(200).json({
+      status: "success",
+      content: {
+        user: u,
+      },
+    });
+  } catch (e) {
+    res.status(500).json({
+      status: "error",
+      message: e.message || e,
+    });
+  }
+};
 
 exports.updateUser = async(req, res)=>{
     try {

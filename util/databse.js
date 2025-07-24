@@ -13,15 +13,33 @@ function associations(){
   const Activity = require("../models/activitySchema");
   const TourActivity = require("../models/tourActivitySchema");
 
-  // associations 
-  User.hasMany(Tour, { foreignKey: 'userId' });
-  Tour.belongsTo(User, { foreignKey: 'userId' });
+  // associations
+  // User.hasMany(Tour, { foreignKey: 'userId' });
+  // Tour.belongsTo(User, { foreignKey: 'userId' });
 
-  Tour.hasMany(Place, { foreignKey: 'tourId' });
-  Place.belongsTo(Tour, { foreignKey: 'tourId' });
+  // One tour can have many users
+  Tour.hasMany(User, {
+    foreignKey: "tourId",
+    as: "users",
+    onDelete: "SET NULL", // If tour is deleted, user.tourId becomes NULL
+    onUpdate: "CASCADE",
+  });
 
-  Tour.belongsToMany(Activity, { through: TourActivity, foreignKey: 'tourId' });
-  Activity.belongsToMany(Tour, { through: TourActivity , foreignKey: 'activityId'});
+  // A user belongs to one tour (optional)
+  User.belongsTo(Tour, {
+    foreignKey: "tourId",
+    as: "tour",
+    onDelete: "SET NULL", // When tour is deleted, don't delete user
+  });
+
+  Tour.hasMany(Place, { foreignKey: "tourId" });
+  Place.belongsTo(Tour, { foreignKey: "tourId" });
+
+  Tour.belongsToMany(Activity, { through: TourActivity, foreignKey: "tourId" });
+  Activity.belongsToMany(Tour, {
+    through: TourActivity,
+    foreignKey: "activityId",
+  });
 
   // Tour.belongsToMany(Activity, {
   //   through: TourActivity, // ✅ Use imported model here
@@ -29,7 +47,7 @@ function associations(){
   //   otherKey: 'activityId',
   //   as: 'activities'
   // });
-  
+
   // // Activity model
   // Activity.belongsToMany(Tour, {
   //   through: TourActivity,
@@ -37,8 +55,6 @@ function associations(){
   //   otherKey: 'tourId',
   //   as: 'tours'
   // });
-
-
 }
 
 const connection = async()=>{
